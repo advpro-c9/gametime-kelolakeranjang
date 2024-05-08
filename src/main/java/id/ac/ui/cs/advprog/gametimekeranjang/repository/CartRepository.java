@@ -1,15 +1,20 @@
 package id.ac.ui.cs.advprog.gametimekeranjang.repository;
 
-import id.ac.ui.cs.advprog.gametimekeranjang.model.Cart;
-import org.springframework.stereotype.Repository;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import id.ac.ui.cs.advprog.gametimekeranjang.client.StockDataClientFallback;
+import id.ac.ui.cs.advprog.gametimekeranjang.client.stockDataClient;
+import id.ac.ui.cs.advprog.gametimekeranjang.model.Cart;
+import id.ac.ui.cs.advprog.gametimekeranjang.model.Stock;
 
 @Repository
 public class CartRepository {
     private static CartRepository instance;
     private Map<Integer, Cart> cartProducts = new HashMap<>();
+    private final stockDataClient stockClient = new StockDataClientFallback();
 
     // Singleton pattern
     private CartRepository() {}
@@ -23,6 +28,11 @@ public class CartRepository {
     }
 
     public Cart addProduct(int productId, int quantity) {
+        Stock stock = stockClient.getStockById(productId);
+        
+        if (stock.getQuantity() < quantity) {
+            throw new IllegalStateException("Insufficient stock quantity");
+        } 
         if (cartProducts.containsKey(productId)) {
             Cart existingItem = cartProducts.get(productId);
             existingItem.setQuantity(existingItem.getQuantity() + quantity);
@@ -39,6 +49,11 @@ public class CartRepository {
     }
 
     public Cart updateProduct(int productId, int quantity) {
+        Stock stock = stockClient.getStockById(productId);
+
+        if (stock.getQuantity() < quantity) {
+            throw new IllegalStateException("Insufficient stock quantity");
+        } 
         if (cartProducts.containsKey(productId)) {
             Cart item = cartProducts.get(productId);
             item.setQuantity(quantity);

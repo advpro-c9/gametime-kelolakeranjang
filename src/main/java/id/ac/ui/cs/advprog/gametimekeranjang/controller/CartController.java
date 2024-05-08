@@ -2,23 +2,33 @@ package id.ac.ui.cs.advprog.gametimekeranjang.controller;
 
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import id.ac.ui.cs.advprog.gametimekeranjang.model.Cart;
+import id.ac.ui.cs.advprog.gametimekeranjang.repository.CartRepository;
 
 
-@Controller
-@RequestMapping("/api/cart")
+@RestController
 public class CartController {
 
-    @GetMapping("/")
+    private final CartRepository repo;
+
+    CartController(CartRepository repo){
+        this.repo =repo;
+    }
+
+    @GetMapping("")
     public String createHomePage(){
         return "Cart";
     }
 
-    @GetMapping("/add")
-    public ResponseEntity<String> getAddProductForm() {
-        return ResponseEntity.ok("This is a example POST to add a product.");
+    @PostMapping("/add")
+    public ResponseEntity<Cart> getAddProductForm(@RequestBody Cart cart) {
+
+        return ResponseEntity.ok(repo.addProduct(cart.getProductId(), cart.getQuantity()));
     }
 
     @GetMapping("/remove")
